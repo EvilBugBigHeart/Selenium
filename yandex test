@@ -1,0 +1,48 @@
+import time
+from selenium import webdriver
+
+# # драйвер браузера
+# driver = webdriver.Chrome()
+#
+# # паузу в 5 секунд
+# time.sleep(5)
+#
+# #открыть сайт по указанной ссылке
+# driver.get("https://yandex.ru")
+#
+#
+# # Ищем поле для ввода
+# textelement = driver.find_element_by_id('text')
+#
+# #текст ответа в поле
+# textelement.send_keys("тензор")
+# time.sleep(5)
+#
+# # Найдем кнопку поиска
+# findbutton = driver.find_element_by_class_name("button")
+#
+# findbutton.click()
+# time.sleep(5)
+#
+# # закрыть окно браузера
+# driver.quit()
+# Часть (2).
+from selenium.webdriver import ActionChains
+
+driver = webdriver.Chrome()
+driver.get("https://yandex.ru")
+
+
+# images_text = driver.find_element_by_css_selector("a.images")
+# # записываем в переменную welcome_text текст из элемента welcome_text_elt
+# images_text = images_text.text
+#  # с помощью assert проверяем, что ожидаемый текст совпадает с текстом на странице сайта
+# assert "Элемент Картинки - существует" == images
+textelement = driver.find_element_by_xpath("//a[@data-id='images']")
+textelement.click()
+time.sleep(2)
+firstbox= driver.find_element_by_css_selector("div.PopularRequestList a")
+firstbox.click()
+time.sleep(5)
+
+driver.quit()
