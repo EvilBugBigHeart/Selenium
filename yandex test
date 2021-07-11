@@ -1,48 +1,89 @@
 import time
+import sys
+import driver as driver
 from selenium import webdriver
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+#sys.stdout = open('C:/selenium_course/console.txt','w') # Переместить все логи из запроса в Текстовый файл.
+try:
+    # драйвер браузера
+    driver = webdriver.Chrome()
+    #driver.execute_script("alert('Тест запущен');").accept() #JS уведомление (Обыкновенное окно уведомления, но его нужно закрыть руками, поэтому закомментил)
+    #оставлю принт XDD
+    print("Тест №_1 запущен")
 
-# # драйвер браузера
-# driver = webdriver.Chrome()
-#
-# # паузу в 5 секунд
-# time.sleep(5)
-#
-# #открыть сайт по указанной ссылке
-# driver.get("https://yandex.ru")
-#
-#
-# # Ищем поле для ввода
-# textelement = driver.find_element_by_id('text')
-#
-# #текст ответа в поле
-# textelement.send_keys("тензор")
-# time.sleep(5)
-#
-# # Найдем кнопку поиска
-# findbutton = driver.find_element_by_class_name("button")
-#
-# findbutton.click()
-# time.sleep(5)
-#
-# # закрыть окно браузера
-# driver.quit()
+    # паузу в 5 секунд
+    time.sleep(5)
+    #открыть сайт по указанной ссылке
+    driver.get("https://yandex.ru")
+
+    # Ищем поле для ввода
+    textelement = driver.find_element_by_id('text')
+    #текст ответа в поле
+    textelement.send_keys("тензор")
+    time.sleep(5)
+    vspisok = driver.find_elements_by_xpath("//li[contains(@class,'mini-suggest__item mini-suggest__item_type_fulltext')]")
+    print("Ссылки по запросу: ")
+    for suggestion in vspisok:
+        print(suggestion.text)
+    items = [elem.text.strip() for elem in vspisok[:5]]
+    if "тензор" not in items:
+        raise Exception('ссылок на тензор нет в пунктах') #Проверка на содержание тензор в поиске, если нет, то напишет в отчёте ошибку об отсутствий
+# Найдем кнопку поиска
+    findbutton = driver.find_element_by_xpath("//button[@type='submit']").click()
+    time.sleep(3)
+    driver.execute_script("alert('Тест №_1 завершён');")
+    time.sleep(2)
+# закрыть окно браузера
+    driver.quit()
+
 # Часть (2).
-from selenium.webdriver import ActionChains
+    #driver.execute_script("alert('Тест №_2 запущен');")
+    print("Тест №_2 Запущен")
+    driver = webdriver.Chrome()
+    driver.get("https://yandex.ru")
+    textelement = driver.find_element_by_xpath("//a[@data-id='images']")
+    textelement.click()
 
-driver = webdriver.Chrome()
-driver.get("https://yandex.ru")
+    urlimages = 'https://yandex.ru'
+    #changedurl = 'https://yandex.ru/images/' 
+    changedurl = "https://yandex.ru/images/?utm_source=main_stripe_big"
+    driver.get(urlimages)
+    WebDriverWait(driver, 10).until(EC.url_changes(changedurl))
+    time.sleep(5)
 
+    driver.close()
+    driver.switch_to.window(driver.window_handles[0])#Переключение окна
+    nowurl = driver.current_url
+    time.sleep(2)
 
-# images_text = driver.find_element_by_css_selector("a.images")
-# # записываем в переменную welcome_text текст из элемента welcome_text_elt
-# images_text = images_text.text
-#  # с помощью assert проверяем, что ожидаемый текст совпадает с текстом на странице сайта
-# assert "Элемент Картинки - существует" == images
-textelement = driver.find_element_by_xpath("//a[@data-id='images']")
-textelement.click()
-time.sleep(2)
-firstbox= driver.find_element_by_css_selector("div.PopularRequestList a")
-firstbox.click()
-time.sleep(5)
+    if nowurl == changedurl:
+        print(('Переход по адресу', nowurl, 'выполнен'))
 
-driver.quit()
+    err = driver.find_element_by_xpath("//div[@class='PopularRequestList']/div[1]")
+    err.click()
+    verifytexturl = err.text
+
+    time.sleep(3)
+    driver.window_handles[0]#Ожидание получения рукопожатия
+    driver.find_element_by_xpath("(//a[@class='serp-item__link'])[1]").click()
+    time.sleep(3)
+    #Проверка возврата 1 изображения при условии выбора 1-2-1 , получением тек.ссылки 2 раза
+    first_img = driver.current_url
+    print(first_img)
+    time.sleep(3)
+    driver.find_element_by_xpath("(//i[@class='CircleButton-Icon'])[4]").click()
+    time.sleep(3)
+    driver.find_element_by_xpath("(//i[@class='CircleButton-Icon'])[1]").click()
+    time.sleep(2) # Таймеры для выжидания времени получения запроса(ссылок).
+    if  first_img == driver.current_url:
+        print("Изображение после возврата 1 -> 2 -> 1 совпадает с изначальным")
+    else:
+        raise Exception("Изображение не совпало,неверный возврат")
+
+finally:
+    time.sleep(3)
+    driver.execute_script("alert('Тест №_2 завершён');")
+    time.sleep(5)
+    driver.quit()
+    #sys.stdout.close() #Закрытие границы отчёта
